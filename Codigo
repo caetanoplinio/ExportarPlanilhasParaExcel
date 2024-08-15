@@ -1,0 +1,46 @@
+Public Sub ExportarPlanilhasParaExcel()
+    On Error GoTo TratarErro
+
+    Dim lWorkbook As Workbook
+    Dim ws As Worksheet
+    Dim lCaminho As String
+    Dim novoWorkbook As Workbook
+    
+    ' Desativa atualização da tela
+    Application.ScreenUpdating = False
+    
+    ' Define o caminho onde os arquivos serão salvos
+    lCaminho = Application.ActiveWorkbook.Path
+    
+    ' Loop entre as planilhas da pasta de trabalho
+    For Each ws In ActiveWorkbook.Worksheets
+        ' Criar um novo workbook
+        Set novoWorkbook = Workbooks.Add
+        
+        ' Copiar a planilha atual para o novo workbook
+        ws.Copy Before:=novoWorkbook.Sheets(1)
+        
+        ' Remover as planilhas padrão que foram criadas com o novo workbook
+        Application.DisplayAlerts = False
+        While novoWorkbook.Sheets.Count > 1
+            novoWorkbook.Sheets(2).Delete
+        Wend
+        Application.DisplayAlerts = True
+        
+        ' Salvar o novo workbook com o nome da planilha
+        novoWorkbook.SaveAs Filename:=lCaminho & "\" & ws.Name & ".xlsx"
+        
+        ' Fechar o novo workbook
+        novoWorkbook.Close SaveChanges:=False
+    Next ws
+    
+    MsgBox "Planilhas exportadas em arquivos Excel em: " & lCaminho
+    
+Sair:
+    Application.ScreenUpdating = True
+    Exit Sub
+    
+TratarErro:
+    MsgBox "Houve uma falha: " & Err.Description
+    GoTo Sair
+End Sub
